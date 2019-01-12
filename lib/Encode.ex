@@ -4,8 +4,6 @@ defmodule Encode do
       def call(input, acc \\ "")
       def call(0, acc), do: acc
 
-
-
       def call(input, acc) when is_binary(input) do
         bindecoded = :binary.decode_unsigned(input)
         getcall = call(bindecoded,acc)
@@ -14,13 +12,11 @@ defmodule Encode do
       end
 
 
-
       def call(input, acc) do
         division = div(input,@length)
         callval = call(division,exhash(input, acc))
       callval
       end
-
 
 
       defp exhash(input, acc) do
@@ -46,11 +42,12 @@ defmodule Encode do
       leadz
       end
 
-    
+
 
       defp dupzeros(count) do
         first = String.first(@alphabet)
         return = String.duplicate(first,count)
       return
       end
+
     end

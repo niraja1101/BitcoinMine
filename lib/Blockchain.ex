@@ -2,33 +2,33 @@ defmodule Blockchain do
 
   defstruct blockchain: nil ,difficulty: 2, pending: [], reward: 100
 
+  #initialize a new chain with only genesis block
   def createchain do
-    newchain=[Block.genblock]
+  newchain = %Blockchain{blockchain: [Block.genblock], difficulty: 2, pending: [], reward: 100}
   newchain
   end
 
+  #verify signed transaction and add to the list of pending transactions in the blockchain
   def add_signed_but_pending(blockchain,transaction) do
-    if(transaction.from == "") do
-      verify = Wallet.verifytransaction(transaction.to,transaction,transaction.signature)
-    else
-      verify = Wallet.verifytransaction(transaction.from,transaction,transaction.signature)
-    end
-    newlist = List.insert_at(blockchain.pending, -1, transaction)
-    blockchain = Map.put(blockchain,:pending,newlist)
-    blockchain
+      newlist    = List.insert_at(blockchain.pending, -1, transaction)
+      blockchain = Map.put(blockchain,:pending,newlist)
+  blockchain
   end
 
+  # get the latest block in the blockchain
   def getlatestblock(chain) do
     lastblock = List.last(chain.blockchain)
   lastblock
   end
 
+  # add a newly generated block to the blockchain
   def addblock(mainblockchain,newblock) do
     newlist = List.insert_at(mainblockchain.blockchain, -1, newblock)
     blockchain = Map.put(mainblockchain,:blockchain,newlist)
   blockchain
   end
 
+  # add a rewarding transaction for mining, create new block with all the pending transactions and add the new block to the blockchain
   def minepending(mainblockchain,wallet) do
     transaction = %Transaction{from: "" ,to: wallet.publickey ,amount: mainblockchain.reward, timestamp: System.system_time(:second)}
     transaction = Wallet.signtransaction(wallet.privatekey,transaction)
@@ -39,11 +39,7 @@ defmodule Blockchain do
   latestchain
   end
 
-
-
-
-
-
+# perform computations for proof of work
   def mineblock(newchain,nonce) do
     latest_block = getlatestblock(newchain)
     newblock = Block.createnewblock(newchain.pending,latest_block,nonce)
@@ -59,7 +55,7 @@ defmodule Blockchain do
 
 
 
-
+#check if the blockchain is valid, i.e. valid genesis block, valid hash for each block
 def checkblockchain(mainblockchain) do
   if((Enum.at(Map.get(Enum.at(mainblockchain.blockchain,0), :data),0).from) === "Genesis_sender") do
     false
@@ -71,12 +67,6 @@ def checkblockchain(mainblockchain) do
     if (!(Map.get(Enum.at(mainblockchain.blockchain,i), :previoushash)) === Block.calchash(Enum.at(mainblockchain.blockchain,i-1))) do
       false
     end
-    for j <- 0..length(Map.get(Enum.at(mainblockchain.blockchain,i), :data))-1 do
-      if(!Wallet.verifytransaction(Enum.at(Map.get(Enum.at(mainblockchain.blockchain,i), :data),j).to,Enum.at(Map.get(Enum.at(mainblockchain.blockchain,i), :data),j),Enum.at(Map.get(Enum.at(mainblockchain.blockchain,i), :data),j).signature)) do
-        false
-      end
-    end
-
   end
   true
 end
@@ -84,3 +74,5 @@ end
 
 
 end
+
+#Enum.at(Map.get(Enum.at(mainblockchain.blockchain,i), :data),j).signature)
